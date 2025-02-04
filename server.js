@@ -29,3 +29,6 @@ app.post("/users", async (req, res) => {
 
 // Start the server
 app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+
+// test
+// curl -X POST http://localhost:3000/users -H "Content-Type: application/json" -d '{"name": "Test", "email": "test@email.com"}'
