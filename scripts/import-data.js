@@ -12,7 +12,7 @@ function parseNumericValue(value) {
 }
 
 async function findOrCreateGame(name) {
-  let game = await prisma.game.findUnique({ where: { name } });
+  let game = await prisma.game.findFirst({ where: { name } });
   if (!game) {
     game = await prisma.game.create({ data: { name } });
   }
