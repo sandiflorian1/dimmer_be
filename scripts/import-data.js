@@ -56,15 +56,15 @@ async function importData() {
         console.log(`Processing houseElement: ${houseElement} for game: ${gama}`);
         const houseElementRecord = await prisma.houseElement.upsert({
           where: {
-            gamaId_houseElementName: {
-              gamaId: game.id,
-              houseElementName: houseElement
-            }
+            AND: [
+              { gama_id: game.id },
+              { house_element_name: houseElement }
+            ]
           },
           update: {},
           create: {
-            houseElementName: houseElement,
-            gamaId: game.id
+            house_element_name: houseElement,
+            gama_id: game.id
           }
         });
 
@@ -77,15 +77,15 @@ async function importData() {
         console.log(`Processing level1: ${level1}`);
         const level1Record = await prisma.level1.upsert({
           where: {
-            houseElementsId_name: {
-              houseElementsId: houseElementRecord.id,
-              name: level1
-            }
+            AND: [
+              { house_elements_id: houseElementRecord.id },
+              { name: level1 }
+            ]
           },
           update: {},
           create: {
             name: level1,
-            houseElementsId: houseElementRecord.id
+            house_elements_id: houseElementRecord.id
           }
         });
 
@@ -98,15 +98,15 @@ async function importData() {
         console.log(`Processing level2: ${level2}`);
         const level2Record = await prisma.level2.upsert({
           where: {
-            level1Id_name: {
-              level1Id: level1Record.id,
-              name: level2
-            }
+            AND: [
+              { level_1_id: level1Record.id },
+              { name: level2 }
+            ]
           },
           update: {},
           create: {
             name: level2,
-            level1Id: level1Record.id
+            level_1_id: level1Record.id
           }
         });
 
@@ -119,15 +119,15 @@ async function importData() {
         console.log(`Processing level3: ${level3}`);
         const level3Record = await prisma.level3.upsert({
           where: {
-            level2Id_name: {
-              level2Id: level2Record.id,
-              name: level3
-            }
+            AND: [
+              { level_2_id: level2Record.id },
+              { name: level3 }
+            ]
           },
           update: {},
           create: {
             name: level3,
-            level2Id: level2Record.id
+            level_2_id: level2Record.id
           }
         });
 
@@ -140,7 +140,7 @@ async function importData() {
               depth: depth ? parseFloat(depth.replace(',', '.')) : null,
               mp: mp ? parseFloat(mp.replace(',', '.')) : null,
               price: price ? parseFloat(price.replace(',', '.')) : null,
-              level3Id: level3Record.id
+              level_3_id: level3Record.id
             }
           });
         }

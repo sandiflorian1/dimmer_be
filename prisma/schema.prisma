@@ -21,50 +21,50 @@ model User {
 }
 
 model Game {
-  id             Int             @id @default(autoincrement())
-  name           String          @unique
-  houseElements  HouseElement[]
+  id            Int            @id @default(autoincrement())
+  name          String
+  houseElements HouseElement[]
 }
 
 model HouseElement {
-  id                Int       @id @default(autoincrement())
-  houseElementName  String
-  game             Game      @relation(fields: [gamaId], references: [id])
-  gamaId           Int
-  level1s          Level1[]
+  id                Int      @id @default(autoincrement())
+  house_element_name String
+  gama_id           Int
+  game              Game     @relation(fields: [gama_id], references: [id])
+  level1s           Level1[]
 }
 
 model Level1 {
-  id              Int           @id @default(autoincrement())
-  name            String
-  houseElement    HouseElement  @relation(fields: [houseElementsId], references: [id])
-  houseElementsId Int
-  level2s         Level2[]
+  id               Int           @id @default(autoincrement())
+  name             String
+  house_elements_id Int
+  houseElement     HouseElement  @relation(fields: [house_elements_id], references: [id])
+  level2s          Level2[]
 }
 
 model Level2 {
-  id        Int      @id @default(autoincrement())
-  name      String
-  level1    Level1   @relation(fields: [level1Id], references: [id])
-  level1Id  Int
-  level3s   Level3[]
+  id         Int      @id @default(autoincrement())
+  name       String
+  level_1_id Int
+  level1     Level1   @relation(fields: [level_1_id], references: [id])
+  level3s    Level3[]
 }
 
 model Level3 {
-  id        Int        @id @default(autoincrement())
-  name      String
-  level2    Level2     @relation(fields: [level2Id], references: [id])
-  level2Id  Int
-  products  Product[]
+  id         Int       @id @default(autoincrement())
+  name       String
+  level_2_id Int
+  level2     Level2    @relation(fields: [level_2_id], references: [id])
+  products   Product[]
 }
 
 model Product {
-  id        Int      @id @default(autoincrement())
-  category  String?
-  name      String
-  level3    Level3   @relation(fields: [level3Id], references: [id])
-  level3Id  Int
-  depth     Int?
-  mp        Int?
-  price     Int?
+  id         Int     @id @default(autoincrement())
+  category   String?
+  name       String
+  level_3_id Int
+  level3     Level3  @relation(fields: [level_3_id], references: [id])
+  depth      Int?
+  mp         Int?
+  price      Int?
 }
