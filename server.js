@@ -35,8 +35,167 @@ app.post("/users", async (req, res) => {
   }
 });
 
+// Get all games (game)
+app.get('/games', async (req, res) => {
+  try {
+    const games = await prisma.game.findMany({
+      include: {
+        houseElements: true
+      }
+    });
+    res.json(games);
+  } catch (error) {
+    console.error("❌ Eroare la citirea din BD:", error);
+    res.status(500).json({ error: "Eroare la citirea din baza de date!" });
+  }
+});
+
+// Add a new game
+app.post("/games", async (req, res) => {
+  try {
+    const { name } = req.body;
+    
+    if (!name) {
+      return res.status(400).json({ error: "Numele gamei este obligatoriu!" });
+    }
+
+    const newGame = await prisma.game.create({
+      data: { name }
+    });
+
+    res.json(newGame);
+  } catch (error) {
+    console.error("❌ Eroare la salvare în BD:", error);
+    res.status(500).json({ error: "Eroare la salvare în baza de date!" });
+  }
+});
+
+// Get all house elements
+app.get('/house-elements', async (req, res) => {
+  try {
+    const houseElements = await prisma.houseElement.findMany({
+      include: {
+        game: true
+      }
+    });
+    res.json(houseElements);
+  } catch (error) {
+    console.error("❌ Eroare la citirea din BD:", error);
+    res.status(500).json({ error: "Eroare la citirea din baza de date!" });
+  }
+});
+
+// Add a new house element
+app.post("/house-elements", async (req, res) => {
+  try {
+    const { houseElementName, gamaId } = req.body;
+    
+    if (!houseElementName || !gamaId) {
+      return res.status(400).json({ error: "Numele elementului și ID-ul gamei sunt obligatorii!" });
+    }
+
+    const newHouseElement = await prisma.houseElement.create({
+      data: {
+        houseElementName,
+        gamaId
+      },
+      include: {
+        game: true
+      }
+    });
+
+    res.json(newHouseElement);
+  } catch (error) {
+    console.error("❌ Eroare la salvare în BD:", error);
+    res.status(500).json({ error: "Eroare la salvare în baza de date!" });
+  }
+});
+
+// Get house elements by game ID
+app.get('/games/:gameId/house-elements', async (req, res) => {
+  try {
+    const { gameId } = req.params;
+    
+    const houseElements = await prisma.houseElement.findMany({
+      where: {
+        gamaId: parseInt(gameId)
+      },
+      include: {
+        game: true
+      }
+    });
+    
+    res.json(houseElements);
+  } catch (error) {
+    console.error("❌ Eroare la citirea din BD:", error);
+    res.status(500).json({ error: "Eroare la citirea din baza de date!" });
+  }
+});
+
 // Start the server
 app.listen(3000, () => console.log('Server running on http://localhost:3000'));
 
-// test
-// curl -X POST http://localhost:3000/users -H "Content-Type: application/json" -d '{"name": "Test", "email": "test@email.com"}'
+// Get all house elements
+app.get('/house-elements', async (req, res) => {
+  try {
+    const houseElements = await prisma.houseElement.findMany({
+      include: {
+        game: true
+      }
+    });
+    res.json(houseElements);
+  } catch (error) {
+    console.error("❌ Eroare la citirea din BD:", error);
+    res.status(500).json({ error: "Eroare la citirea din baza de date!" });
+  }
+});
+
+// Add a new house element
+app.post("/house-elements", async (req, res) => {
+  try {
+    const { houseElementName, gamaId } = req.body;
+    
+    if (!houseElementName || !gamaId) {
+      return res.status(400).json({ error: "Numele elementului și ID-ul gamei sunt obligatorii!" });
+    }
+
+    const newHouseElement = await prisma.houseElement.create({
+      data: {
+        houseElementName,
+        gamaId
+      },
+      include: {
+        game: true
+      }
+    });
+
+    res.json(newHouseElement);
+  } catch (error) {
+    console.error("❌ Eroare la salvare în BD:", error);
+    res.status(500).json({ error: "Eroare la salvare în baza de date!" });
+  }
+});
+
+// Get house elements by game ID
+app.get('/games/:gameId/house-elements', async (req, res) => {
+  try {
+    const { gameId } = req.params;
+    
+    const houseElements = await prisma.houseElement.findMany({
+      where: {
+        gamaId: parseInt(gameId)
+      },
+      include: {
+        game: true
+      }
+    });
+    
+    res.json(houseElements);
+  } catch (error) {
+    console.error("❌ Eroare la citirea din BD:", error);
+    res.status(500).json({ error: "Eroare la citirea din baza de date!" });
+  }
+});
+
+// Start the server
+app.listen(3000, () => console.log('Server running on http://localhost:3000'));
