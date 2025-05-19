@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const fs = require('fs');
-const csv = require('csv-parse');
+const { parse } = require('csv-parse');
 const path = require('path');
 
 const prisma = new PrismaClient();
@@ -11,10 +11,13 @@ async function importData() {
     const fileContent = fs.readFileSync(csvFilePath, { encoding: 'utf-8' });
 
     const records = await new Promise((resolve, reject) => {
-      csv.parse(fileContent, {
+      parse(fileContent, {
         delimiter: ';',
         skip_empty_lines: true,
         from_line: 4, // Skip header lines
+        relax_quotes: true, // Permite ghilimele în câmpuri
+        rtrim: true, // Elimină spațiile de la sfârșitul câmpurilor
+        ltrim: true, // Elimină spațiile de la începutul câmpurilor
       }, (err, data) => {
         if (err) reject(err);
         else resolve(data);
