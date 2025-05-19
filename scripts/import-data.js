@@ -7,9 +7,12 @@ const prisma = new PrismaClient();
 
 async function importData() {
   try {
+    console.log('Starting data import...');
     const csvFilePath = path.join(__dirname, '..', 'DB_retete.csv');
+    console.log('Reading CSV file:', csvFilePath);
     const fileContent = fs.readFileSync(csvFilePath, { encoding: 'utf-8' });
 
+    console.log('Parsing CSV content...');
     const records = await new Promise((resolve, reject) => {
       parse(fileContent, {
         delimiter: ';',
@@ -24,37 +27,143 @@ async function importData() {
       });
     });
 
+    console.log(`Found ${records.length} records to process`);
+    let processedRecords = 0;
+
     for (const record of records) {
       const [gama, houseElement, level1, level2, level3, productName, depth, mp, price] = record;
 
-      if (!gama) continue;
+      if (!gama) {
+        console.log('Skipping record with no gama');
+        continue;
+      }
 
-      // Create or find Game
-      const game = await prisma.game.upsert({
-        where: { name: gama },
-        update: {},
-        create: { name: gama }
-      });
-
-      if (!houseElement) continue;
-
-      // Create or find HouseElement
-      const houseElementRecord = await prisma.houseElement.upsert({
-        where: { 
-          gamaId_houseElementName: {
-            gamaId: game.id,
-            houseElementName: houseElement
+      try {
+        // Create or find Game
+        console.log(`Processing game: ${gama}`);
+        const game = await prisma.game.upsert({
+          where: { 
+            name: gama 
+          },
+          update: {},
+          create: { 
+            name: gama 
           }
-        },
-        update: {},
-        create: {
-          houseElementName: houseElement,
-          gamaId: game.id
+        });
+        
+        processedRecords++;
+        if (processedRecords % 100 === 0) {
+          console.log(`Processed ${processedRecords} records...`);
         }
-      });
+      } catch (error) {
+        console.error(`Error processing record with gama ${gama}:`, error);
+        continue;
+      }
 
-      if (!level1) continue;
+      if (!houseElement) {
+        console.log('Skipping record with no houseElement');
+        continue;
+      }
 
+      try {
+        // Create or find HouseElement
+        console.log(`Processing houseElement: ${houseElement} for game: ${gama}`);
+        const houseElementRecord = await prisma.houseElement.create({
+          data: {
+            houseElementName: houseElement,
+            game: {
+              connect: {
+                id: game.id
+              }
+            }
+          }
+        });
+
+        // Process Level1 if exists
+        if (level1) {
+          console.log(`Processing level1: ${level1}`);
+          const level1Record = await prisma.level1.create({
+            data: {
+              name: level1,
+              houseElement: {
+                connect: {
+                  id: houseElementRecord.id
+                }
+              }
+            }
+          });
+
+          // Process Level2 if exists
+          if (level2) {
+            console.log(`Processing level2: ${level2}`);
+            const level2Record = await prisma.level2.create({
+              data: {
+                name: level2,
+                level1: {
+                  connect: {
+                    id: level1Record.id
+                  }
+                }
+              }
+            });
+
+            // Process Level3 if exists
+            if (level3) {
+              console.log(`Processing level3: ${level3}`);
+              const level3Record = await prisma.level3.create({
+                data: {
+                  name: level3,
+                  level2: {
+                    connect: {
+                      id: level2Record.id
+                    }
+                  }
+                }
+              });
+
+              // Process Product if exists
+              if (productName) {
+                console.log(`Processing product: ${productName}`);
+                await prisma.product.create({
+                  data: {
+                    name: productName,
+                    depth: depth ? parseInt(depth.trim()) : null,
+                    mp: mp ? parseInt(mp.trim()) : null,
+                    price: price ? parseInt(price.trim()) : null,
+                    level3: {
+                      connect: {
+                        id: level3Record.id
+                      }
+                    }
+                  }
+                });
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error(`Error processing record:`, error);
+        continue;
+      }
+
+    }
+
+    console.log('Import completed successfully!');
+    console.log(`Total records processed: ${processedRecords}`);
+  } catch (error) {
+    console.error('Error importing data:', error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+// Rulăm funcția de import
+importData()
+  .catch((error) => {
+    console.error('Error:', error);
+    process.exit(1);
+  });
       // Create or find Level1
       const level1Record = await prisma.level1.upsert({
         where: {
