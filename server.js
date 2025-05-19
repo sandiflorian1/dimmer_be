@@ -18,12 +18,20 @@ app.get('/users', async (req, res) => {
 app.post("/users", async (req, res) => {
   try {
     const { name, email } = req.body;
+    console.log("Data:", name, email);
+
+    if (!name || !email) {
+      return res.status(400).json({ error: "Name și email sunt obligatorii!" });
+    }
+
     const newUser = await prisma.user.create({
-      data: { name, email, password: 'password' },
+      data: { name, email },
     });
+
     res.json(newUser);
   } catch (error) {
-    res.status(500).json({ error: "Error adding user" });
+    console.error("❌ Eroare la salvare în BD:", error);
+    res.status(500).json({ error: "Eroare la salvare în baza de date!" });
   }
 });
 

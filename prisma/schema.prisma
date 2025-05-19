@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,6 +14,57 @@ model User {
   id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
+  username  String 
+  role      String
   password  String
   createdAt DateTime @default(now())
+}
+
+model Game {
+  id             Int             @id @default(autoincrement())
+  name           String
+  houseElements  HouseElement[]
+}
+
+model HouseElement {
+  id                Int       @id @default(autoincrement())
+  houseElementName  String
+  game             Game      @relation(fields: [gamaId], references: [id])
+  gamaId           Int
+  level1s          Level1[]
+}
+
+model Level1 {
+  id              Int           @id @default(autoincrement())
+  name            String
+  houseElement    HouseElement  @relation(fields: [houseElementsId], references: [id])
+  houseElementsId Int
+  level2s         Level2[]
+}
+
+model Level2 {
+  id        Int      @id @default(autoincrement())
+  name      String
+  level1    Level1   @relation(fields: [level1Id], references: [id])
+  level1Id  Int
+  level3s   Level3[]
+}
+
+model Level3 {
+  id        Int        @id @default(autoincrement())
+  name      String
+  level2    Level2     @relation(fields: [level2Id], references: [id])
+  level2Id  Int
+  products  Product[]
+}
+
+model Product {
+  id        Int      @id @default(autoincrement())
+  category  String?
+  name      String
+  level3    Level3   @relation(fields: [level3Id], references: [id])
+  level3Id  Int
+  depth     Int?
+  mp        Int?
+  price     Int?
 }
