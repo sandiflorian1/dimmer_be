@@ -35,6 +35,30 @@ app.post("/users", async (req, res) => {
   }
 });
 
+// Delete a user
+app.delete("/users/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "Utilizatorul nu a fost găsit!" });
+    }
+
+    await prisma.user.delete({
+      where: { id: parseInt(id) }
+    });
+
+    res.json({ message: "Utilizatorul a fost șters cu succes!" });
+  } catch (error) {
+    console.error("❌ Eroare la ștergerea din BD:", error);
+    res.status(500).json({ error: "Eroare la ștergerea din baza de date!" });
+  }
+});
+
 // Get all games
 app.get('/games', async (req, res) => {
   try {
