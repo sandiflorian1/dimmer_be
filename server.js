@@ -16,13 +16,6 @@ app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/api', gameRoutes); // Toate rutele legate de games, products și ierarhie sunt sub /api
 
-// Start server
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on http://0.0.0.0:${PORT}`);
-  console.log('You can access it from other devices using your IP address');
-});
-
 // Get products for a specific level3
 app.get('/api/level3/:id/products', async (req, res) => {
   try {
